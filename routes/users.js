@@ -1,8 +1,12 @@
 // userRouter.js (또는 원하는 파일명)
 import validator from 'express-validator'
 import express from 'express';
+import { param, body, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import conn from '../mariadb.js'
+import { StatusCodes } from 'http-status-codes';
+import { login, join, passwordReset, passwordResetRequest } from '../controller/UserController.js'
 
 dotenv.config();
 
@@ -11,23 +15,18 @@ const router = express.Router();
 router.use(express.json());
 
 // 로그인
-router.post('/login', (req, res) => {
-  // 로그인 로직
-});
+router.post('/login', login)
 
-// 회원가입
-router.post('/join', (req, res) => {
-  // 회원가입 로직
-});
+router.post('/join', join)
 
 // 회원 개별 조회 및 탈퇴
 router
   .route('/reset')
-  .post((req, res) => {
-    // 개별 조회 로직
-  })
-  .put((req, res) => {
-    // 회원 탈퇴 로직
-  });
+
+  //비밀번호 초기화 요청
+  .post(passwordResetRequest)
+
+  //비밀번호 초기화
+  .put(passwordReset);
 
 export default router;
