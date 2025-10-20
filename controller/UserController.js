@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken'
 import validator from 'express-validator'
 import { param, body, validationResult } from 'express-validator';;
 import dotenv from 'dotenv';
-import { StatusCodes } from 'http-status-codes';
 
 dotenv.config();
 
@@ -58,8 +57,7 @@ const login = (req, res) => {
             if (loginUser && loginUser.password == password) {
 
                 const token = jwt.sign({
-                    email: loginUser.email,
-                    name: loginUser.name
+                    email: loginUser.email
                 }, process.env.PRIVATE_KEY, {
                     expiresIn: '5m',
                     issuer: 'yj'
@@ -70,7 +68,7 @@ const login = (req, res) => {
                 })
 
                 res.status(StatusCodes.OK).json({
-                    message: `${loginUser.name}님 로그인되었습니다`,
+                    message: `${loginUser.email}님 로그인되었습니다`,
                     token: token,
                 })
 
@@ -97,4 +95,4 @@ const passwordReset = (req, res) => {
 }
 
 
-export default { login, join, passwordReset, passwordResetRequest };
+export  { join, login, passwordReset, passwordResetRequest };;
