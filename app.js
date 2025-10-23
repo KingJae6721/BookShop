@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 import bookRouter from './routes/books.js';
 // import cartRouter from './routes/carts.js';
-// import likeRouter from './routes/likes.js';
+import likeRouter from './routes/likes.js';
 // import orderRouter from './routes/orders.js';
 import userRouter from './routes/users.js';
 import categoryRouter from './routes/category.js'
@@ -20,7 +20,7 @@ app.use(express.json());
 app.use('/users', userRouter);
 // app.use('/carts', cartRouter);
 app.use('/books', bookRouter);
-// app.use('/likes', likeRouter);
+app.use('/likes', likeRouter);
 // app.use('/orders', orderRouter);
 app.use('/category', categoryRouter);
 
