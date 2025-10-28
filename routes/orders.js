@@ -11,8 +11,8 @@ router.use(express.json());
 
 //주문하기
 router.post('/', order);
-
+router.get('/', getOrders);
 // 주문상품 상세조회
-router.delete('/:id', getOrderDetail);
+router.get('/:id', getOrderDetail);
 
 export default router;

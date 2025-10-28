@@ -13,42 +13,83 @@ const order = async (req, res) => {
 
     });
     const { items, delivery, totalQuantity, totalPrice, userId, firstBookTitle } = req.body;
-    let delivery_id;
-    let order_id;
-
 
     let sql = `INSERT INTO delivery (address, receiver, contact) VALUES (?,?,?);`;
     //const delivery_id = SELECT max(id) form delivery;
     let values = [delivery.address, delivery.receiver, delivery.contact];
 
-    let [results] = await conn.query(sql, values);
-    delivery_id=results.insertId;
-    
+    let [results] = await conn.execute(sql, values);
+    let delivery_id = results.insertId;
+
     sql = `INSERT INTO orders (book_title, total_quantity, total_price, user_id, delivery_id) 
     VALUES (?, ?, ?, ?, ? );`;
     values = [firstBookTitle, totalQuantity, totalPrice, userId, delivery_id];
-    let [results1] = await conn.query(sql, values);
-    order_id=results1.insertId
+
+    [results] = await conn.execute(sql, values);
+    let order_id = results.insertId
 
     sql = `INSERT INTO orderedBook (order_id, book_id, quantity)
             VALUES ?`;
     values = [];
 
-    items.forEach((item) => {
+    let get = 'SELECT book_id, quantity FROM cartitems WHERE id IN (?)'
+    let [orderItems] = await conn.query(get, [items])
+    console.log(items);
+    console.log(orderItems);
+
+    orderItems.forEach((item) => {
         values.push([order_id, item.book_id, item.quantity])
     });
+
+
+
+    console.log(values);
+    let result = await deleteCartItems(conn, items)
+
     res.json(await conn.query(sql, [values]));
-};
-
-const getOrders = (req, res) => {
-
-    const { book_id, quantity, user_id } = req.body;
 
 };
 
-const getOrderDetail = (req, res) => {
+const deleteCartItems = async (conn, items) => {
+    let sql = `DELETE FROM cartItems WHERE id IN (?);`;
 
-    const { book_id, quantity, user_id } = req.body;
+    let result = conn.query(sql, [items]);
+    return result;
+}
+
+const getOrders = async (req, res) => {
+    const conn = await mariadb.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: '1234',
+        database: 'Bookshop',
+        dateString: true
+    });
+    let sql = `SELECT orders.id, created_at, address,
+           receiver,contact,book_title, 
+        total_quantity, total_price
+        FROM orders LEFT JOIN delivery
+        ON orders.delivery_id = delivery.id;`;
+    let [rows, fileds] = await conn.query(sql);
+    return res.status(StatusCodes.OK).json(rows)
+};
+
+const getOrderDetail = async (req, res) => {
+
+    const { id } = req.params;
+    const conn = await mariadb.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: '1234',
+        database: 'Bookshop',
+        dateString: true
+    });
+    let sql = `SELECT order_id,book_id, title, 
+        author, price, quantity
+        FROM orderedBook LEFT JOIN books
+        ON orderedBook.book_id = books.id;`;
+    let [rows, fileds] = await conn.query(sql, [id]);
+    return res.status(StatusCodes.OK).json(rows)
 };
 
 
